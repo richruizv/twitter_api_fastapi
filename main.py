@@ -1,13 +1,15 @@
 #models
+from unittest import result
 from models import User,Tweet
 
 #python
 from typing import List
+import json
 
 #fastapi
 from fastapi import FastAPI
 from fastapi import status
-from fastapi import Path
+from fastapi import Path,Body
 
 
 
@@ -25,8 +27,31 @@ def home():
         status_code=status.HTTP_201_CREATED,
         summary='Sign up',
         tags=['Auth', 'Users'])
-def signup(user: User) -> User:
-    pass
+def signup(user: User = Body(...)) -> User:
+    """
+    This path operation register a user in the app
+
+    Parameters: 
+        -Request body parameter
+            -user: UserRegister
+    
+    Returns a json with the basic user information:
+        -user_id : UUID
+        -email : Emailstr
+        -first_name : str
+        -last_name : str
+        -birth_date : date
+    """
+    with open("users.json", "r+", encoding="utf-8") as f:
+        results = json.loads(f.read())
+        user_dict = user.dict()
+        user_dict["user_id"] = str(user_dict["user_id"])
+        user_dict["birth_date"] = str(user_dict["birth_date"])
+        results.append(user_dict)
+        f.seek(0)
+        f.write(json.dumps(results))
+        return user
+
 
 
 @app.post('/auth/login',
