@@ -7,14 +7,15 @@ from uuid import UUID
 from pydantic import BaseModel
 from pydantic import EmailStr, Field
 
-class User(BaseModel):
-    user_id: UUID = Field(...)
-    email: EmailStr = Field(...)
+class Password(BaseModel):
     password: str = Field(
         ..., 
         min_length=8,
         max_length=64
     )
+class User(BaseModel):
+    user_id: UUID = Field(...)
+    email: EmailStr = Field(...)
     first_name : str = Field(
         ...,
         min_length=1,
@@ -26,6 +27,9 @@ class User(BaseModel):
         max_length=50
     )
     birth_date: Optional[date] = Field(default=None)
+
+class RegisterUser(Password,User):
+    pass
 
 class Tweet(BaseModel):
     tweet_id: UUID = Field(..., alias="Tweet id")

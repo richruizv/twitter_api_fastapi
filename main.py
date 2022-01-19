@@ -1,6 +1,6 @@
 #models
 from unittest import result
-from models import User,Tweet
+from models import RegisterUser,User,Tweet
 
 #python
 from typing import List
@@ -23,11 +23,10 @@ def home():
 ## Auth
 @app.post('/auth/signup',
         response_model=User,
-        response_model_exclude={"password"},
         status_code=status.HTTP_201_CREATED,
         summary='Sign up',
         tags=['Auth', 'Users'])
-def signup(user: User = Body(...)) -> User:
+def signup(user: RegisterUser = Body(...)) -> User:
     """
     This path operation register a user in the app
 
@@ -40,6 +39,7 @@ def signup(user: User = Body(...)) -> User:
         -email : Emailstr
         -first_name : str
         -last_name : str
+        -password : str
         -birth_date : date
     """
     with open("users.json", "r+", encoding="utf-8") as f:
@@ -169,8 +169,37 @@ def retrieve_tweet(
     summary='Post a tweet',
     tags=['Tweets']
 )
-def post():
-    pass
+def post(
+    tweet: Tweet = Body(...)
+):
+    """
+    Post a Tweet
+    This path operation post a tweet in the app
+    Parameters: 
+        - Request body parameter
+            - tweet: Tweet
+    
+    Returns a json with the basic tweet information: 
+        tweet_id: UUID  
+        content: str    
+        created_at: datetime
+        updated_at: Optional[datetime]
+        by: User
+    """
+    with open("tweets.json", "r+", encoding="utf-8") as f: 
+        results = json.loads(f.read())
+        tweet_dict = tweet.dict()
+        tweet_dict["tweet_id"] = str(tweet_dict["tweet_id"])
+        tweet_dict["created_at"] = str(tweet_dict["created_at"])
+        if tweet_dict["updated_at"]:
+            tweet_dict["updated_at"] = str(tweet_dict["updated_at"])
+        tweet_dict["by"]["user_id"] = str(tweet_dict["by"]["user_id"])
+        tweet_dict["by"]["birth_date"] = str(tweet_dict["by"]["birth_date"])
+
+        results.append(tweet_dict)
+        f.seek(0)
+        f.write(json.dumps(results))
+        return tweet
 
 
 @app.put('/tweets/{id}',
