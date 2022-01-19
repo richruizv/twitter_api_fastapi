@@ -20,6 +20,11 @@ class User(BaseModel):
         min_length=1,
         max_length=50
     )
+    last_name : str = Field(
+        ...,
+        min_length=1,
+        max_length=50
+    )
     birth_date: Optional[date] = Field(default=None)
 
 class Tweet(BaseModel):
